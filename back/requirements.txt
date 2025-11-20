@@ -1,0 +1,7 @@
+google-generativeai
+ipywidgets
+pandas
+stripe
+json
+re
+scikit-learn
