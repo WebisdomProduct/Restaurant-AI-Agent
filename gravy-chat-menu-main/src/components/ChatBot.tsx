@@ -44,7 +44,7 @@ const ChatBot = () => {
     const userEmail = sessionStorage.getItem(`user_email_${sid}`) || "guest@example.com";
 
     try {
-      const response = await fetch("http://localhost:8000/chatbot", {
+      const response = await fetch("http://34.180.6.75:8000/chatbot", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
