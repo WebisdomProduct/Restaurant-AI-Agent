@@ -31,9 +31,9 @@ const AuthModal = ({ open, onOpenChange, onLoginSuccess }: AuthModalProps) => {
   //  }
  // }, [onLoginSuccess]);
 
-  const handleLogin = async () => {
+ const handleLogin = async () => {
   try {
-    sessionStorage.clear(); // 🧹 reset any leftover session
+    sessionStorage.clear();
     const response = await fetch("/api/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -45,8 +45,7 @@ const AuthModal = ({ open, onOpenChange, onLoginSuccess }: AuthModalProps) => {
 
     const data = await response.json();
 
-    if (response.ok) {
-      // generate or use session ID per tab
+    if (response.ok && data.user) { // check if user exists
       let sid = sessionStorage.getItem("fsog_session_id");
       if (!sid) {
         sid = crypto.randomUUID();
@@ -54,25 +53,27 @@ const AuthModal = ({ open, onOpenChange, onLoginSuccess }: AuthModalProps) => {
       }
 
       const user = {
-        name: data.user?.Name,
-        email: data.user?.Email,
+        name: data.user.Name,
+        email: data.user.Email,
       };
 
-      // ✅ store under session-prefixed keys
       sessionStorage.setItem(`user_name_${sid}`, user.name);
       sessionStorage.setItem(`user_email_${sid}`, user.email);
       sessionStorage.setItem("fsog_session_id", sid);
 
       onLoginSuccess(user);
-      toast({ title: "Welcome back!", description: "You've successfully logged in." });
+      toast({ title: "Welcome back!", description: data.message || "Login successful" });
       onOpenChange(false);
     } else {
-      toast({ title: "Login failed", description: data.detail || data.message, variant: "destructive" });
+      // handle backend errors gracefully
+      toast({ title: "Login failed", description: data.detail || data.message || "Invalid credentials", variant: "destructive" });
     }
-  } catch {
+  } catch (err) {
+    console.error(err); // log real error
     toast({ title: "Error", description: "Unable to connect to server", variant: "destructive" });
   }
 };
+
 
 
 
