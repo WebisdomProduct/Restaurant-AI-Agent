@@ -63,15 +63,28 @@ def normalize_email(email: str) -> str:
     return (email or "").strip().lower()
 
 def get_sheet_data(sheet_name: str) -> List[Dict[str, str]]:
-    """Fetch all rows from a specified Google Sheet via webhook."""
-    try:
-        url = f"{GOOGLE_SHEET_WEBHOOK}?sheet={sheet_name}"
-        res = requests.get(url, timeout=30)
-        res.raise_for_status()
-        return res.json().get("data", [])
-    except Exception as e:
-        print(f"Error fetching {sheet_name}: {e}")
-        raise HTTPException(status_code=500, detail=f"Failed to fetch {sheet_name} data.")
+    """Fetch all rows from a specified Google Sheet via webhook with retry on rate limit."""
+    url = f"{GOOGLE_SHEET_WEBHOOK}?sheet={sheet_name}"
+    retries = 3
+    backoff = 2  # seconds
+
+    for attempt in range(retries):
+        try:
+            res = requests.get(url, timeout=30)
+            if res.status_code == 429:
+                print(f"Rate limited by Google Sheets webhook. Attempt {attempt + 1}/{retries}")
+                time.sleep(backoff ** (attempt + 1))  # exponential backoff
+                continue
+            res.raise_for_status()
+            return res.json().get("data", [])
+        except requests.RequestException as e:
+            print(f"Error fetching {sheet_name} on attempt {attempt + 1}: {e}")
+            if attempt == retries - 1:
+                raise HTTPException(
+                    status_code=500,
+                    detail=f"Failed to fetch {sheet_name} data after {retries} attempts."
+                )
+            time.sleep(backoff ** (attempt + 1)) 
 
 def append_to_sheet(sheet_name: str, data: Dict[str, Any]):
     """
