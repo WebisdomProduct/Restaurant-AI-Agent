@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
@@ -14,68 +14,59 @@ interface AuthModalProps {
 }
 
 const AuthModal = ({ open, onOpenChange, onLoginSuccess }: AuthModalProps) => {
-  const [loginEmail, setLoginEmail] = useState("");
-  const [loginPassword, setLoginPassword] = useState("");
+  const { toast } = useToast();
+
+  // Hardcoded login credentials
+  const [loginEmail, setLoginEmail] = useState("atharve@gmail.com");
+  const [loginPassword, setLoginPassword] = useState("test123"); // change if you want
+  const [rememberMe, setRememberMe] = useState(false);
+
+  // Registration state (can remain empty)
   const [registerName, setRegisterName] = useState("");
   const [registerEmail, setRegisterEmail] = useState("");
   const [registerPassword, setRegisterPassword] = useState("");
-  const [rememberMe, setRememberMe] = useState(false);
-  const { toast } = useToast();
 
-  // 🧠 Auto-login from localStorage
- // useEffect(() => {
-  //  const savedEmail = sessionStorage.getItem("email");
-  //  const savedName = sessionStorage.getItem("name");
-   // if (savedEmail && savedName) {
-   //   onLoginSuccess({ name: savedName, email: savedEmail });
-  //  }
- // }, [onLoginSuccess]);
+  const handleLogin = async () => {
+    try {
+      sessionStorage.clear();
+      const response = await fetch("/api/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          Email: loginEmail,
+          Password: loginPassword,
+        }),
+      });
 
- const handleLogin = async () => {
-  try {
-    sessionStorage.clear();
-    const response = await fetch("/api/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        Email: loginEmail,
-        Password: loginPassword,
-      }),
-    });
+      const data = await response.json();
 
-    const data = await response.json();
+      if (response.ok && data.user) {
+        let sid = sessionStorage.getItem("fsog_session_id");
+        if (!sid) {
+          sid = crypto.randomUUID();
+          sessionStorage.setItem("fsog_session_id", sid);
+        }
 
-    if (response.ok && data.user) { // check if user exists
-      let sid = sessionStorage.getItem("fsog_session_id");
-      if (!sid) {
-        sid = crypto.randomUUID();
+        const user = {
+          name: data.user.Name,
+          email: data.user.Email,
+        };
+
+        sessionStorage.setItem(`user_name_${sid}`, user.name);
+        sessionStorage.setItem(`user_email_${sid}`, user.email);
         sessionStorage.setItem("fsog_session_id", sid);
+
+        onLoginSuccess(user);
+        toast({ title: "Welcome back!", description: data.message || "Login successful" });
+        onOpenChange(false);
+      } else {
+        toast({ title: "Login failed", description: data.detail || data.message || "Invalid credentials", variant: "destructive" });
       }
-
-      const user = {
-        name: data.user.Name,
-        email: data.user.Email,
-      };
-
-      sessionStorage.setItem(`user_name_${sid}`, user.name);
-      sessionStorage.setItem(`user_email_${sid}`, user.email);
-      sessionStorage.setItem("fsog_session_id", sid);
-
-      onLoginSuccess(user);
-      toast({ title: "Welcome back!", description: data.message || "Login successful" });
-      onOpenChange(false);
-    } else {
-      // handle backend errors gracefully
-      toast({ title: "Login failed", description: data.detail || data.message || "Invalid credentials", variant: "destructive" });
+    } catch (err) {
+      console.error(err);
+      toast({ title: "Error", description: "Unable to connect to server", variant: "destructive" });
     }
-  } catch (err) {
-    console.error(err); // log real error
-    toast({ title: "Error", description: "Unable to connect to server", variant: "destructive" });
-  }
-};
-
-
-
+  };
 
   const handleRegister = async () => {
     try {
