@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
@@ -22,27 +22,63 @@ const AuthModal = ({ open, onOpenChange, onLoginSuccess }: AuthModalProps) => {
   const [rememberMe, setRememberMe] = useState(false);
   const { toast } = useToast();
 
-  // Hardcoded login
+  // 🧠 Auto-login from localStorage
+ // useEffect(() => {
+  //  const savedEmail = sessionStorage.getItem("email");
+  //  const savedName = sessionStorage.getItem("name");
+   // if (savedEmail && savedName) {
+   //   onLoginSuccess({ name: savedName, email: savedEmail });
+  //  }
+ // }, [onLoginSuccess]);
+
   const handleLogin = async () => {
-    const user = {
-      name: "Test User",
-      email: "test@example.com",
-    };
+  try {
+    sessionStorage.clear(); // 🧹 reset any leftover session
+    const response = await fetch("http://34.180.6.75:8000/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        Email: loginEmail,
+        Password: loginPassword,
+      }),
+    });
 
-    // Trigger login success callback
-    onLoginSuccess(user);
+    const data = await response.json();
 
-    // Show a toast
-    toast({ title: "Welcome!", description: `Logged in as ${user.name}.` });
+    if (response.ok) {
+      // generate or use session ID per tab
+      let sid = sessionStorage.getItem("fsog_session_id");
+      if (!sid) {
+        sid = crypto.randomUUID();
+        sessionStorage.setItem("fsog_session_id", sid);
+      }
 
-    // Close modal
-    onOpenChange(false);
-  };
+      const user = {
+        name: data.user?.Name,
+        email: data.user?.Email,
+      };
 
-  // Registration stays normal
+      // ✅ store under session-prefixed keys
+      sessionStorage.setItem(`user_name_${sid}`, user.name);
+      sessionStorage.setItem(`user_email_${sid}`, user.email);
+      sessionStorage.setItem("fsog_session_id", sid);
+
+      onLoginSuccess(user);
+      toast({ title: "Welcome back!", description: "You've successfully logged in." });
+      onOpenChange(false);
+    } else {
+      toast({ title: "Login failed", description: data.detail || data.message, variant: "destructive" });
+    }
+  } catch {
+    toast({ title: "Error", description: "Unable to connect to server", variant: "destructive" });
+  }
+};
+
+
+
   const handleRegister = async () => {
     try {
-      const response = await fetch("/api/register", {
+      const response = await fetch("http://34.180.6.75:8000/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
