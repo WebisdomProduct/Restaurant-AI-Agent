@@ -31,7 +31,7 @@ const Cart = ({ open, onOpenChange, items, onUpdateQuantity, onRemove }: CartPro
       const userName = sessionStorage.getItem(`user_name_${sid}`) || "Guest User";
       const userEmail = sessionStorage.getItem(`user_email_${sid}`) || "guest@example.com";
 
-      const response = await fetch("http://34.180.6.75:8000/order", {
+      const response = await fetch("http://34.14.219.235/order", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
