@@ -10,7 +10,7 @@ const NotificationBar = () => {
 
     const fetchNotifications = async () => {
       try {
-        const res = await fetch("http://34.180.6.75:8000/notifications");
+        const res = await fetch("http://34.14.219.235:8000/notifications");
         const data = await res.json();
         setNotifications(data.notifications.reverse());
       } catch (err) {
