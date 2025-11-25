@@ -25,7 +25,7 @@ const Menu = ({ onAddToCart }: MenuProps) => {
   useEffect(() => {
     const loadMenu = async () => {
       try {
-        const res = await fetch("http://34.180.6.75:8000/api/menu");
+        const res = await fetch("http://34.14.219.235:8000/api/menu");
         const data = await res.json();
 
         if (!Array.isArray(data)) {
