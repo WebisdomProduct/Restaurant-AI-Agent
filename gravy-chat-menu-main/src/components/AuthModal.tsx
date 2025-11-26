@@ -34,7 +34,7 @@ const AuthModal = ({ open, onOpenChange, onLoginSuccess }: AuthModalProps) => {
   const handleLogin = async () => {
   try {
     sessionStorage.clear(); // 🧹 reset any leftover session
-    const response = await fetch("http://34.14.219.235:8000/login", {
+    const response = await fetch("http://34.93.214.210:8000/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -78,7 +78,7 @@ const AuthModal = ({ open, onOpenChange, onLoginSuccess }: AuthModalProps) => {
 
   const handleRegister = async () => {
     try {
-      const response = await fetch("http://34.14.219.235:8000/register", {
+      const response = await fetch("http://34.93.214.210:8000/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
