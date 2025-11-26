@@ -37,7 +37,7 @@ const AuthModal = ({ open, onOpenChange, onLoginSuccess }: AuthModalProps) => {
   // -------------------
   const handleLogin = async () => {
     try {
-      const response = await fetch("http://34.93.214.210/api/login", {
+      const response = await fetch("/api/login", {  // <- relative URL
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ Email: loginEmail, Password: loginPassword }),
@@ -46,7 +46,7 @@ const AuthModal = ({ open, onOpenChange, onLoginSuccess }: AuthModalProps) => {
       const data = await response.json();
 
       if (response.ok) {
-        // generate session id
+        // generate or reuse session id
         const sid = sessionStorage.getItem("fsog_session_id") || crypto.randomUUID();
         if (rememberMe) localStorage.setItem("fsog_session_id", sid);
         else sessionStorage.setItem("fsog_session_id", sid);
@@ -78,7 +78,7 @@ const AuthModal = ({ open, onOpenChange, onLoginSuccess }: AuthModalProps) => {
   // -------------------
   const handleRegister = async () => {
     try {
-      const response = await fetch("http://34.93.214.210/api/register", {
+      const response = await fetch("/api/register", {  // <- relative URL
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ Name: registerName, Email: registerEmail, Password: registerPassword }),
