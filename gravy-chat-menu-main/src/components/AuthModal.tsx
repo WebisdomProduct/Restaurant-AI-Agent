@@ -32,9 +32,12 @@ const AuthModal = ({ open, onOpenChange, onLoginSuccess }: AuthModalProps) => {
     }
   }, [onLoginSuccess]);
 
+  // -------------------
+  // LOGIN FUNCTION
+  // -------------------
   const handleLogin = async () => {
     try {
-      const response = await fetch("/api/login", {
+      const response = await fetch("http://34.93.214.210/api/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ Email: loginEmail, Password: loginPassword }),
@@ -43,8 +46,8 @@ const AuthModal = ({ open, onOpenChange, onLoginSuccess }: AuthModalProps) => {
       const data = await response.json();
 
       if (response.ok) {
-        // session or persistent storage
-        let sid = sessionStorage.getItem("fsog_session_id") || crypto.randomUUID();
+        // generate session id
+        const sid = sessionStorage.getItem("fsog_session_id") || crypto.randomUUID();
         if (rememberMe) localStorage.setItem("fsog_session_id", sid);
         else sessionStorage.setItem("fsog_session_id", sid);
 
@@ -70,9 +73,12 @@ const AuthModal = ({ open, onOpenChange, onLoginSuccess }: AuthModalProps) => {
     }
   };
 
+  // -------------------
+  // REGISTER FUNCTION
+  // -------------------
   const handleRegister = async () => {
     try {
-      const response = await fetch("/api/register", {
+      const response = await fetch("http://34.93.214.210/api/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ Name: registerName, Email: registerEmail, Password: registerPassword }),
@@ -98,7 +104,9 @@ const AuthModal = ({ open, onOpenChange, onLoginSuccess }: AuthModalProps) => {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle className="text-2xl font-bold text-center">Welcome to Fifty Shades Of Gravy 🍛</DialogTitle>
+          <DialogTitle className="text-2xl font-bold text-center">
+            Welcome to Fifty Shades Of Gravy 🍛
+          </DialogTitle>
         </DialogHeader>
 
         <Tabs defaultValue="login" className="w-full">
@@ -111,37 +119,76 @@ const AuthModal = ({ open, onOpenChange, onLoginSuccess }: AuthModalProps) => {
           <TabsContent value="login" className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="login-email">Email</Label>
-              <Input id="login-email" type="email" placeholder="your@email.com" value={loginEmail} onChange={(e) => setLoginEmail(e.target.value)} />
+              <Input
+                id="login-email"
+                type="email"
+                placeholder="your@email.com"
+                value={loginEmail}
+                onChange={(e) => setLoginEmail(e.target.value)}
+              />
             </div>
             <div className="space-y-2">
               <Label htmlFor="login-password">Password</Label>
-              <Input id="login-password" type="password" placeholder="••••••••" value={loginPassword} onChange={(e) => setLoginPassword(e.target.value)} />
+              <Input
+                id="login-password"
+                type="password"
+                placeholder="••••••••"
+                value={loginPassword}
+                onChange={(e) => setLoginPassword(e.target.value)}
+              />
             </div>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <Checkbox id="remember" checked={rememberMe} onCheckedChange={(checked) => setRememberMe(checked as boolean)} />
-                <label htmlFor="remember" className="text-sm text-muted-foreground cursor-pointer">Remember me</label>
+                <Checkbox
+                  id="remember"
+                  checked={rememberMe}
+                  onCheckedChange={(checked) => setRememberMe(checked as boolean)}
+                />
+                <label htmlFor="remember" className="text-sm text-muted-foreground cursor-pointer">
+                  Remember me
+                </label>
               </div>
               <button className="text-sm text-primary hover:underline">Forgot password?</button>
             </div>
-            <Button onClick={handleLogin} className="w-full bg-primary hover:bg-primary/90">Login</Button>
+            <Button onClick={handleLogin} className="w-full bg-primary hover:bg-primary/90">
+              Login
+            </Button>
           </TabsContent>
 
           {/* REGISTER TAB */}
           <TabsContent value="register" className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="register-name">Full Name</Label>
-              <Input id="register-name" placeholder="John Doe" value={registerName} onChange={(e) => setRegisterName(e.target.value)} />
+              <Input
+                id="register-name"
+                placeholder="John Doe"
+                value={registerName}
+                onChange={(e) => setRegisterName(e.target.value)}
+              />
             </div>
             <div className="space-y-2">
               <Label htmlFor="register-email">Email</Label>
-              <Input id="register-email" type="email" placeholder="your@email.com" value={registerEmail} onChange={(e) => setRegisterEmail(e.target.value)} />
+              <Input
+                id="register-email"
+                type="email"
+                placeholder="your@email.com"
+                value={registerEmail}
+                onChange={(e) => setRegisterEmail(e.target.value)}
+              />
             </div>
             <div className="space-y-2">
               <Label htmlFor="register-password">Password</Label>
-              <Input id="register-password" type="password" placeholder="••••••••" value={registerPassword} onChange={(e) => setRegisterPassword(e.target.value)} />
+              <Input
+                id="register-password"
+                type="password"
+                placeholder="••••••••"
+                value={registerPassword}
+                onChange={(e) => setRegisterPassword(e.target.value)}
+              />
             </div>
-            <Button onClick={handleRegister} className="w-full bg-primary hover:bg-primary/90">Create Account</Button>
+            <Button onClick={handleRegister} className="w-full bg-primary hover:bg-primary/90">
+              Create Account
+            </Button>
           </TabsContent>
         </Tabs>
       </DialogContent>
