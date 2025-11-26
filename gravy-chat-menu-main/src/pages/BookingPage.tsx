@@ -24,7 +24,7 @@ const BookingPage = () => {
     setLoading(true);
 
     try {
-      const res = await axios.post("http://34.14.219.235:8000/book-table", form);
+      const res = await axios.post("http://34.93.214.210:8000/book-table", form);
       setResponse(res.data.response);
       setPaymentLink(res.data.payment_link);
     } catch (err: any) {
